@@ -3,7 +3,8 @@
     "description": "Node.js Rock-Paper-Sciscors server",
     "author": "Costas Basdekis <costas.basdekis@gmail.com>",
     "dependencies": {
-        "ws": "0.4.x"
+        "ws": "0.4.x",
+        "sqlite3": "3.0.x",
     },
     "engine": "node >= 0.10.32"
 }
