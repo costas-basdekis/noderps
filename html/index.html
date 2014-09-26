@@ -5,11 +5,93 @@
         [name=users] {
             min-width: 200px;
         }
+        [name=users] .my-user {
+            color: red;
+        }
     </style>
+    <script type="text/javascript">
+        var rps = {};
+
+        reconnect();
+
+        function reconnect() {
+            var socket = rps.socket;
+            if (socket && (
+                (socket.readyState == socket.CONNECTING) ||
+                (socket.readyState == socket.OPEN))) {
+                connected();
+                return;
+            }
+            console.log('Connecting to websocket server');
+            socket = rps.socket = new WebSocket('ws://localhost:7001');
+            if (socket.readyState != socket.OPEN) {
+                console.log('Could not connect to webscoket server, will retry');
+                if (!rps.reconnectInterval) {
+                    rps.reconnectInterval = window.setInterval(reconnect, 1000);
+                }
+            } else if (socket.readyState == socket.OPEN) {
+                connected();
+            }
+        }
+        function connected() {
+            console.log('Connected to websocket server');
+            rps.socket.onmessage = onMessage;
+            rps.socket.onclose = reconnect;
+            rps.reconnectInterval = window.clearInterval(rps.reconnectInterval);
+            rps.socket.send(JSON.stringify({action: 'list_users'}));
+        }
+        function onMessage(data) {
+            try {
+                data = JSON.parse(data.data);
+            } catch (e) {
+                console.log('Message was not JSON', data);
+                return;
+            }
+
+            if (data.type == 'user_token') {
+                rps.myToken = data.user.token;
+                rps.myId = data.user.id;
+                rps.myName = data.user.name;
+
+                var myUserOption = document.querySelector('[name=users] .my-user');
+                if (myUserOption) {
+                    myUserOption.classList.remove('my-user');
+                }
+            } else if (data.type == 'new_user') {
+                addUser(data.user);
+            } else if (data.type == 'list_users') {
+                listUsers(data.users);
+            }
+        }
+        function listUsers(users) {
+            var usersList = document.querySelector('[name=users]');
+            usersList.options.length = 0;
+            for (var i = 0, user ; user = users[i] ; i++) {
+                addUser(user);
+            }
+        }
+        function addUser(user) {
+            var option = document.createElement('option');
+            if (user.id == rps.myId) {
+                option.classList.add('my-user');
+            }
+            option.innerText = user.name;
+            option.value = user.id;
+            var usersList = document.querySelector('[name=users]');
+            usersList.add(option);
+        }
+    </script>
+    <script>
+        function join() {
+            var name = document.querySelector('[name=username]').value;
+            rps.socket.send(JSON.stringify({action: 'join', name: name}));
+        }
+    </script>
 </head>
 <body>
     <div>
-        <button type="submit">Join</button> <input type="text" name="username">
+        <button type="submit" onclick="join()">Join</button>
+        <input type="text" name="username">
     </div>
     <select name="users" size="5">
     </select>

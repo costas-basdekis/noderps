@@ -20,24 +20,39 @@ wss.on('connection', function onConnection(socket) {
         }
         if (data.action == 'join') {
             console.log('new user');
-            var id = Math.ceil(Math.random() * 1000000);
-            var token = Math.ceil(Math.random() * 1000000);
-            var name = data.name || 'User ' + id;
+            var user = {
+                id: Math.ceil(Math.random() * 1000000),
+                token: Math.ceil(Math.random() * 1000000),
+            };
+            user.name = data.name || 'User ' + user.id
 
             var stmt = db.prepare("INSERT INTO users values (?, ?, ?)");
-            stmt.run(id, token, name);
+            stmt.run(user.id, user.token, user.name);
             stmt.finalize();
 
             socket.send(JSON.stringify({
                 type: 'user_token',
-                token: token
+                user: user
             }));
             wss.broadcast(JSON.stringify({
                type: 'new_user',
-               id: id,
-               name: name
+               user: user,
+            }));
+        } else if (data.action == 'list_users') {
+            var users = [];
+            db.each("SELECT id, name FROM users", function dbEach(err, row) {
+                users.push({
+                    id: row.id,
+                    name: row.name,
+                });
+            });
+            socket.send(JSON.stringify({
+                type: 'list_users',
+                users: users
             }));
         }
     });
 });
+
+console.log('Websocket server started');
 
