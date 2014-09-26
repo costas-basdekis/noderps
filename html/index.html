@@ -2,6 +2,18 @@
 <head>
     <title>Node.js Rock-Paper-Sciscors</title>
     <style type="text/css">
+        .web-socket-status {
+            color: red;
+        }
+        .web-socket-status:after {
+            content: 'Disconnected';
+        }
+        .web-socket-status.connected {
+            color: green;
+        }
+        .web-socket-status.connected:after {
+            content: 'Connected';
+        }
         [name=users] {
             min-width: 200px;
         }
@@ -12,7 +24,7 @@
     <script type="text/javascript">
         var rps = {};
 
-        reconnect();
+        document.addEventListener("DOMContentLoaded", reconnect, false);
 
         function reconnect() {
             var socket = rps.socket;
@@ -22,6 +34,7 @@
                 connected();
                 return;
             }
+            document.querySelector('.web-socket-status').classList.remove('connected');
             console.log('Connecting to websocket server');
             socket = rps.socket = new WebSocket('ws://localhost:7001');
             if (socket.readyState != socket.OPEN) {
@@ -35,6 +48,7 @@
         }
         function connected() {
             console.log('Connected to websocket server');
+            document.querySelector('.web-socket-status').classList.add('connected');
             rps.socket.onmessage = onMessage;
             rps.socket.onclose = reconnect;
             rps.reconnectInterval = window.clearInterval(rps.reconnectInterval);
@@ -89,6 +103,7 @@
     </script>
 </head>
 <body>
+    <div class="web-socket-status"></div>
     <div>
         <button type="submit" onclick="join()">Join</button>
         <input type="text" name="username">
