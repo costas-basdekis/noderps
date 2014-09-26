@@ -23,16 +23,18 @@ wss.on('connection', function onConnection(socket) {
             var user = {
                 id: Math.ceil(Math.random() * 1000000),
                 token: Math.ceil(Math.random() * 1000000),
+                score: 0,
+                state: 'waiting',
             };
             user.name = data.name || 'User ' + user.id
 
-            var stmt = db.prepare("INSERT INTO users values (?, ?, ?)");
-            stmt.run(user.id, user.token, user.name);
+            var stmt = db.prepare("INSERT INTO users (id, token, name, score, state) values (?, ?, ?, ?, ?)");
+            stmt.run(user.id, user.token, user.name, user.score, user.state);
             stmt.finalize();
 
             socket.send(JSON.stringify({
                 type: 'user_token',
-                user: user
+                user: user,
             }));
             wss.broadcast(JSON.stringify({
                type: 'new_user',
@@ -40,10 +42,12 @@ wss.on('connection', function onConnection(socket) {
             }));
         } else if (data.action == 'list_users') {
             var users = [];
-            db.each("SELECT id, name FROM users", function dbEach(err, row) {
+            db.each("SELECT id, name, score FROM users", function dbEach(err, row) {
                 users.push({
                     id: row.id,
                     name: row.name,
+                    score: row.score,
+                    state: row.state,
                 });
             });
             socket.send(JSON.stringify({

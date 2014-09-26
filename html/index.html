@@ -89,7 +89,7 @@
             if (user.id == rps.myId) {
                 option.classList.add('my-user');
             }
-            option.innerText = user.name;
+            option.innerText = user.name + ' - ' + user.score + ' - ' + user.state;
             option.value = user.id;
             var usersList = document.querySelector('[name=users]');
             usersList.add(option);
