@@ -128,6 +128,7 @@
                 return user.name + ' +' + user.scoreDelta + ' with ' + user.choice;
             }).join(', ');
             var option = document.createElement('option');
+            option.selected = true;
             option.innerText = text;
             var resultsList = document.querySelector('[name=results]');
             resultsList.add(option);
