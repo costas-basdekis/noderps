@@ -28,7 +28,9 @@
             if (socket && (
                 (socket.readyState == socket.CONNECTING) ||
                 (socket.readyState == socket.OPEN))) {
-                connected();
+                if (socket.readyState == socket.OPEN) {
+                    connected();
+                }
                 return;
             }
             document.querySelector('.web-socket-status').classList.remove('connected');
