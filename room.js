@@ -40,7 +40,7 @@ function socketOnMessage(data, flags) {
 }
 
 wss.on('connection', function onConnection(socket) {
-    console.log('new connectioni, now %s clients', wss.clients.length);
+    console.log('new connection, now %s clients', wss.clients.length);
     if (wss.clients.length > 10) {
         console.log('too many clients, dropping');
         socket.close();
