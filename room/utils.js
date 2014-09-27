@@ -67,7 +67,9 @@ function renameUser(socket, name) {
         $name: user.name,
     });
 
-    broadcastChangedUser(user);
+    updateUsers(function() {
+        broadcastChangedUser(user);
+    });
 }
 
 function removeUser(socket) {
@@ -249,11 +251,13 @@ function updateScores(users) {
 
 function updateUsers(callback) {
     getUsers(function(users) {
-        db.each("SELECT id, score FROM users",
+        db.each("SELECT id, name, score, state FROM users",
         function dbEach(err, row) {
             var client = clientFromUserId[row.id];
             var user = client.meta.user;
+            user.name = row.name;
             user.score = row.score;
+            user.state = row.state;
         }, callback);
     });
 }
