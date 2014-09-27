@@ -2,6 +2,10 @@
     "name": "noderps",
     "description": "Node.js Rock-Paper-Sciscors server",
     "author": "Costas Basdekis <costas.basdekis@gmail.com>",
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/costas-basdekis/noderps"
+    },
     "dependencies": {
         "ws": "0.4.x",
         "sqlite3": "3.0.x"
