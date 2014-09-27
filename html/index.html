@@ -2,17 +2,13 @@
 <head>
     <title>Node.js Rock-Paper-Sciscors</title>
     <style type="text/css">
-        .web-socket-status {
-            color: red;
-        }
-        .web-socket-status:after {
+        .web-socket-status:not(.connected):after {
             content: 'Disconnected';
-        }
-        .web-socket-status.connected {
-            color: green;
+            color: red;
         }
         .web-socket-status.connected:after {
             content: 'Connected';
+            color: green;
         }
         [name=users] {
             min-width: 200px;
