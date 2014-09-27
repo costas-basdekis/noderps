@@ -28,7 +28,7 @@ wss.on('connection', function onConnection(socket) {
             };
             user.name = data.name || 'User ' + user.id
 
-            var stmt = db.prepare("INSERT INTO users (id, token, name, score, state) values (?, ?, ?, ?, ?)");
+            var stmt = db.prepare("INSERT INTO users (id, token, name, score, state) VALUES (?, ?, ?, ?, ?)");
             stmt.run(user.id, user.token, user.name, user.score, user.state);
             stmt.finalize();
 
@@ -41,19 +41,21 @@ wss.on('connection', function onConnection(socket) {
                user: user,
             }));
         } else if (data.action == 'list_users') {
-            var users = [];
-            db.each("SELECT id, name, score FROM users", function dbEach(err, row) {
-                users.push({
-                    id: row.id,
-                    name: row.name,
-                    score: row.score,
-                    state: row.state,
+            db.all("SELECT id, name, score, state FROM users",
+                    function dbAll(err, rows) {
+                var users = rows.map(function(row) {
+                    return {
+                        id: row.id,
+                        name: row.name,
+                        score: row.score,
+                        state: row.state,
+                    };
                 });
+                socket.send(JSON.stringify({
+                    type: 'list_users',
+                    users: users
+                }));
             });
-            socket.send(JSON.stringify({
-                type: 'list_users',
-                users: users
-            }));
         }
     });
 });
