@@ -190,11 +190,12 @@ function getScoresDelta(callback) {
         counts[choice] = 0;
     }
     var users = [];
-    db.each("SELECT id, choice FROM users",
+    db.each("SELECT id, name, choice FROM users",
     function dbEach(err, row) {
         counts[row.choice]++;
         users.push({
             id: row.id,
+            name: row.name,
             choice: row.choice,
         });
     }, function dbEachComplete(err) {
@@ -236,6 +237,7 @@ function updateScores(users) {
         }
 
         broadcastListUsers();
+        broadcastRoundResults(users);
     });
 }
 
@@ -245,6 +247,13 @@ function broadcastListUsers() {
             type: 'list_users',
             users: users
         });
+    });
+}
+
+function broadcastRoundResults(users) {
+    broadcast({
+        type: 'round_results',
+        users: users,
     });
 }
 

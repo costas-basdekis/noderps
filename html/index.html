@@ -10,8 +10,9 @@
             content: 'Connected';
             color: green;
         }
-        [name=users] {
+        select {
             min-width: 200px;
+            max-width: 80%;
         }
         [name=users] .my-user {
             color: red;
@@ -82,6 +83,8 @@
                 renameUser(data.user);
             } else if (data.type == 'list_users') {
                 listUsers(data.users);
+            } else if (data.type == 'round_results') {
+                outputRoundResults(data.users);
             }
         }
         function listUsers(users) {
@@ -118,8 +121,17 @@
                 option.innerText = getUserDisplay(user);
             }
         }
+        function outputRoundResults(users) {
+            var text = users.map(function(user) {
+                return user.name + ' +' + user.scoreDelta + ' with ' + user.choice;
+            }).join(', ');
+            var option = document.createElement('option');
+            option.innerText = text;
+            var resultsList = document.querySelector('[name=results]');
+            resultsList.add(option);
+        }
     </script>
-    <script>
+    <script type="text/javascript">
         function rename() {
             var name = document.querySelector('[name=username]').value;
             rps.socket.send(JSON.stringify({action: 'rename', name: name}));
@@ -148,7 +160,11 @@
         <button name="rock" onclick="choose(this)">Rock</button>
         <button name="paper" onclick="choose(this)">Paper</button>
         <button name="sciscors" onclick="choose(this)">Sciscors</button>
+    </div>
     <div>
+        <select name="results" size="5">
+        </select>
+    </div>
 </body>
 </html>
 
