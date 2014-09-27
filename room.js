@@ -20,9 +20,14 @@ wss.handlers = {
         };
         user.name = data.name || 'User ' + user.id
 
-        var stmt = db.prepare("INSERT INTO users (id, token, name, score, state) VALUES (?, ?, ?, ?, ?)");
-        stmt.run(user.id, user.token, user.name, user.score, user.state);
-        stmt.finalize();
+        db.run("INSERT INTO users (id, token, name, score, state) VALUES "+
+               "($id, $token, $name, $score, $state)", {
+            $id: user.id,
+            $token: user.token,
+            $name: user.name,
+            $score: user.score,
+            $state: user.state,
+        });
 
         socket.send(JSON.stringify({
             type: 'user_token',
