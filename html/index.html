@@ -71,6 +71,12 @@
                 if (myUserOption) {
                     myUserOption.classList.remove('my-user');
                 }
+
+                var myUserOption = document.querySelector(
+                        '[name=users] [value="' + rps.myId + '"]');
+                if (myUserOption) {
+                    myUserOption.classList.add('my-user');
+                }
             } else if (data.type == 'new_user') {
                 addUser(data.user);
             } else if (data.type == 'list_users') {
