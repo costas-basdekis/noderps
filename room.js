@@ -42,7 +42,7 @@ wss.on('connection', function onConnection(socket) {
             }));
         } else if (data.action == 'list_users') {
             db.all("SELECT id, name, score, state FROM users",
-                    function dbAll(err, rows) {
+            function dbAll(err, rows) {
                 var users = rows.map(function(row) {
                     return {
                         id: row.id,
@@ -56,6 +56,41 @@ wss.on('connection', function onConnection(socket) {
                     users: users
                 }));
             });
+        } else if (data.action == 'choose') {
+            if (['rock', 'paper', 'sciscors'].indexOf(data.choice) == -1) {
+                console.log('invalid selction %s', data.choice);
+                return;
+            }
+
+            db.all("SELECT token, state FROM users WHERE token = $token",
+            {$token: data.token},
+            function dbAll(err, rows) {
+                if (err) {
+                    console.log('error %s', err);
+                    return;
+                } else if (rows.length == 0) {
+                    console.log('unknown user made a choice %s', data.token);
+                    return;
+                }
+                var row = rows[0];
+
+                db.run("UPDATE users SET choice = $choice, state = $state "+
+                       "WHERE token = $token", {
+                    $token: data.token,
+                    $choice: data.choice,
+                    $state: 'ready',
+                });
+
+                db.get("SELECT COUNT(*) AS waiting FROM users WHERE state = " +
+                       "'waiting'",
+                function dbGet(err, row) {
+                    if (row.waiting == 0) {
+                        console.log('all ready!');
+                    } else {
+                        console.log('%s people waiting', row.waiting);
+                    }
+                });
+            })
         }
     });
 });
