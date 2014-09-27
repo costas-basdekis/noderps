@@ -1,6 +1,7 @@
 var db = require('../db.js').db;
 
 var wss;
+var clientFromUserId = {};
 
 function init($wss) {
     wss = $wss;
@@ -40,6 +41,7 @@ function addUser(socket) {
 
     socket.meta = socket.meta || {};
     socket.meta.user = user;
+    clientFromUserId[user.id] = socket;
 
     sendUserToken(socket);
 
@@ -73,6 +75,8 @@ function removeUser(socket) {
     db.run("DELETE FROM users WHERE id = $id",{
         $id: user.id,
     });
+
+    delete clientFromUserId[user.id];
 
     broadcastDeletedUser(user);
 }
@@ -167,7 +171,9 @@ function updateUserChoice(user, choice) {
             doRound();
         } else {
             console.log('%s people waiting', waiting);
-            broadcastChangedUser(user);
+            updateUsers(function() {
+                broadcastChangedUser(user);
+            });
         }
     });
 }
@@ -238,6 +244,17 @@ function updateScores(users) {
 
         broadcastListUsers();
         broadcastRoundResults(users);
+    });
+}
+
+function updateUsers(callback) {
+    getUsers(function(users) {
+        db.each("SELECT id, score FROM users",
+        function dbEach(err, row) {
+            var client = clientFromUserId[row.id];
+            var user = client.meta.user;
+            user.score = row.score;
+        }, callback);
     });
 }
 
