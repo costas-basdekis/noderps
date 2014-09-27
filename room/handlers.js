@@ -11,12 +11,7 @@ var handlers = {
         });
     },
     list_users: function list_users(socket, data) {
-        utils.getUsers(function(users) {
-            utils.send(socket, {
-                type: 'list_users',
-                users: users
-            });
-        });
+        utils.sendUserList(socket);
     },
     choose: function choose(socket, data) {
         utils.makeChoice(data.token, data.choice);
