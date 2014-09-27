@@ -4,7 +4,7 @@ var db = require('./db').db;
 var handlers = require('./room/handlers').handlers;
 var utils = require('./room/utils');
 
-var wss = new WebSocketServer({port: 7001});
+var wss = new WebSocketServer({port: 7002});
 utils.init(wss);
 
 wss.handlers = handlers;
