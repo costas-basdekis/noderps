@@ -22,6 +22,10 @@ function extractMessage(data, flags) {
         return {error: 'message was not JSON'};
     }
 
+    if (message.action.indexOf('$') != -1) {
+        return {error: 'forbiden action'};
+    }
+
     return {message: message};
 }
 function socketOnMessage(data, flags) {
@@ -32,8 +36,12 @@ function socketOnMessage(data, flags) {
     }
     var message = extracted.message;
 
+    handleMessage(this, message);
+}
+
+function handleMessage(socket, message) {
     if (wss.handlers.hasOwnProperty(message.action)) {
-        wss.handlers[message.action](this, message);
+        wss.handlers[message.action](socket, message);
     } else {
         console.log('unknown action %s', message.action);
     }
@@ -47,7 +55,12 @@ wss.on('connection', function onConnection(socket) {
         return;
     }
 
+    handleMessage(socket, {action: 'socket$connect'});
+
     socket.on('message', socketOnMessage.bind(socket));
+    socket.on('close', function() {
+        handleMessage(socket, {action: 'socket$close'});
+    });
 });
 
 console.log('Websocket server started');

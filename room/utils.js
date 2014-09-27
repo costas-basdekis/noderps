@@ -18,7 +18,7 @@ function broadcast(data) {
     }
 }
 
-function addUser(user) {
+function addUser(socket) {
     console.log('new user');
     
     user = {
@@ -26,9 +26,8 @@ function addUser(user) {
         token: Math.ceil(Math.random() * 1000000),
         score: 0,
         state: 'waiting',
-        name: user.name,
     };
-    user.name = user.name || 'User #' + user.id;
+    user.name = 'User #' + user.id;
 
     db.run("INSERT INTO users (id, token, name, score, state) VALUES "+
            "($id, $token, $name, $score, $state)", {
@@ -39,15 +38,75 @@ function addUser(user) {
         $state: user.state,
     });
 
+    socket.meta = socket.meta || {};
+    socket.meta.user = user;
+
+    sendUserToken(socket);
+
     broadcastNewUser(user);
 
     return user;
 }
 
+function sendUserToken(socket) {
+    var user = socket.meta.user;
+    send(socket, {
+        type: 'user_token',
+        user: user,
+    });
+}
+
+function renameUser(socket, name) {
+    var user = socket.meta.user;
+    user.name = (name || 'User #' + user.id).substr(0, 20);
+
+    db.run("UPDATE users SET name = $name WHERE id = $id;", {
+        $id: user.id,
+        $name: user.name,
+    });
+
+    broadcastChangedUser(user);
+}
+
+function removeUser(socket) {
+    var user = socket.meta.user;
+    db.run("DELETE FROM users WHERE id = $id",{
+        $id: user.id,
+    });
+
+    broadcastDeletedUser(user);
+}
+
 function broadcastNewUser(user) {
     broadcast({
-       type: 'new_user',
-       user: user,
+        type: 'new_user',
+        user: {
+            id: user.id,
+            name: user.name,
+            score: user.score,
+            state: user.state,
+        },
+    });
+}
+
+function broadcastChangedUser(user) {
+    broadcast({
+        type: 'changed_user',
+        user: {
+            id: user.id,
+            name: user.name,
+            score: user.score,
+            state: user.state,
+        },
+    });
+}
+
+function broadcastDeletedUser(user) {
+    broadcast({
+        type: 'removed_user',
+        user: {
+            id: user.id,
+        },
     });
 }
 
@@ -82,33 +141,24 @@ CHOICES_BEAT = {
     'paper': 'rock',
 };
 
-function makeChoice(token, choice) {
+function makeChoice(socket, choice) {
+    var user = socket.meta.user;
+
     if (CHOICES.indexOf(choice) == -1) {
         console.log('invalid selction %s', choice);
         return;
     }
 
-    db.all("SELECT token, state FROM users WHERE token = $token",
-    {$token: token},
-    function dbAll(err, rows) {
-        if (err) {
-            console.log('error %s', err);
-            return;
-        } else if (rows.length == 0) {
-            console.log('unknown user made a choice %s', token);
-            return;
-        }
-
-        updateUserChoice(token, choice);
-    })
+    updateUserChoice(user, choice);
 }
 
-function updateUserChoice(token, choice) {
+function updateUserChoice(user, choice) {
+    user.state = 'ready';
     db.run("UPDATE users SET choice = $choice, state = $state "+
-           "WHERE token = $token", {
-        $token: token,
+           "WHERE id = $id", {
+        $id: user.id,
         $choice: choice,
-        $state: 'ready',
+        $state: user.state,
     });
 
     getUsersWaiting(function usersAreReady(waiting) {
@@ -117,7 +167,7 @@ function updateUserChoice(token, choice) {
             doRound();
         } else {
             console.log('%s people waiting', waiting);
-            broadcastListUsers();
+            broadcastChangedUser(user);
         }
     });
 }
@@ -202,6 +252,9 @@ exports.init = init;
 exports.send = send;
 exports.broadcast = broadcast;
 exports.addUser = addUser;
+exports.sendUserToken = sendUserToken;
+exports.renameUser = renameUser;
+exports.removeUser = removeUser;
 exports.getUsers = getUsers;
 exports.makeChoice = makeChoice;
 exports.sendUserList = sendUserList;

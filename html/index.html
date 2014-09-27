@@ -49,6 +49,7 @@
             rps.socket.onclose = reconnect;
             rps.reconnectInterval = window.clearInterval(rps.reconnectInterval);
             rps.socket.send(JSON.stringify({action: 'list_users'}));
+            rps.socket.send(JSON.stringify({action: 'my_token'}));
         }
         function onMessage(data) {
             try {
@@ -75,6 +76,10 @@
                 }
             } else if (data.type == 'new_user') {
                 addUser(data.user);
+            } else if (data.type == 'removed_user') {
+                removeUser(data.user);
+            } else if (data.type == 'changed_user') {
+                renameUser(data.user);
             } else if (data.type == 'list_users') {
                 listUsers(data.users);
             }
@@ -86,21 +91,38 @@
                 addUser(user);
             }
         }
+        function getUserDisplay(user) {
+            return user.name + ' - ' + user.score + ' - ' + user.state;
+        }
         function addUser(user) {
             var option = document.createElement('option');
             if (user.id == rps.myId) {
                 option.classList.add('my-user');
             }
-            option.innerText = user.name + ' - ' + user.score + ' - ' + user.state;
+            option.innerText = getUserDisplay(user);
             option.value = user.id;
             var usersList = document.querySelector('[name=users]');
             usersList.add(option);
         }
+        function removeUser(user) {
+            var option = document.querySelector('[name=users] [value="' + 
+                user.id + '"]');
+            if (option) {
+                option.remove();
+            }
+        }
+        function renameUser(user) {
+            var option = document.querySelector('[name=users] [value="' + 
+                user.id + '"]');
+            if (option) {
+                option.innerText = getUserDisplay(user);
+            }
+        }
     </script>
     <script>
-        function join() {
+        function rename() {
             var name = document.querySelector('[name=username]').value;
-            rps.socket.send(JSON.stringify({action: 'join', name: name}));
+            rps.socket.send(JSON.stringify({action: 'rename', name: name}));
         }
         function choose(el) {
             var choice = el.name;
@@ -115,7 +137,7 @@
 <body>
     <div class="web-socket-status"></div>
     <div>
-        <button type="submit" onclick="join()">Join</button>
+        <button type="submit" onclick="rename()">Rename</button>
         <input type="text" name="username">
     </div>
     <div>
