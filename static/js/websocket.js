@@ -85,7 +85,7 @@ function addUser(user) {
     if (user.id == rps.myId) {
         option.classList.add('my-user');
     }
-    option.innerText = getUserDisplay(user);
+    option.textContent = getUserDisplay(user);
     option.value = user.id;
     var usersList = document.querySelector('[name=users]');
     usersList.add(option);
@@ -101,7 +101,7 @@ function renameUser(user) {
     var option = document.querySelector('[name=users] [value="' + 
         user.id + '"]');
     if (option) {
-        option.innerText = getUserDisplay(user);
+        option.textContent = getUserDisplay(user);
     }
 }
 function outputRoundResults(users) {
@@ -110,7 +110,7 @@ function outputRoundResults(users) {
     }).join(', ');
     var option = document.createElement('option');
     option.selected = true;
-    option.innerText = text;
+    option.textContent = text;
     var resultsList = document.querySelector('[name=results]');
     resultsList.add(option);
 }
