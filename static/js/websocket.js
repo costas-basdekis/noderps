@@ -113,5 +113,9 @@ function outputRoundResults(users) {
     option.textContent = text;
     var resultsList = document.querySelector('[name=results]');
     resultsList.add(option);
+    var options = document.querySelectorAll('[name^=choice-]:checked');
+    for (var i = 0, option ; option = options[i] ; i++) {
+        option.checked = false;
+    }
 }
 

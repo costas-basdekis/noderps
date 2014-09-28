@@ -13,4 +13,7 @@ select {
 [name=users] .my-user {
     color: red;
 }
+.choice-group .choice-label {
+    display: block;
+}
 

@@ -3,7 +3,7 @@ function rename() {
     rps.socket.send(JSON.stringify({action: 'rename', name: name}));
 }
 function choose(el) {
-    var choice = el.name;
+    var choice = el.value;
     rps.socket.send(JSON.stringify({
         action: 'choose',
         choice: choice,

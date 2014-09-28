@@ -16,9 +16,23 @@
         </select>
     </div>
     <div>
-        <button name="rock" onclick="choose(this)">Rock</button>
-        <button name="paper" onclick="choose(this)">Paper</button>
-        <button name="sciscors" onclick="choose(this)">Sciscors</button>
+        <div class="choice-group">
+            <label class="choice-label">
+                <input type="radio" name="choice-1" value="rock"
+                       onclick="choose(this)">
+                Rock
+            </label>
+            <label class="choice-label">
+                <input type="radio" name="choice-1" value="paper"
+                       onclick="choose(this)">
+                Paper
+            </label>
+            <label class="choice-label">
+                <input type="radio" name="choice-1" value="sciscors"
+                       onclick="choose(this)">
+                Sciscors
+            </label>
+        </div>
     </div>
     <div>
         <select name="results" size="5">
