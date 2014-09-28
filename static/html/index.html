@@ -35,7 +35,9 @@
             }
             document.querySelector('.web-socket-status').classList.remove('connected');
             console.log('Connecting to websocket server');
-            socket = rps.socket = new WebSocket('ws://' + location.hostname + ':7001');
+            var hostname = location.hostname;
+            var port = (hostname == 'rps.next-tuesday.net') ? '7001' : '7002';
+            socket = rps.socket = new WebSocket('ws://' + hostname + ':' + port);
             if (socket.readyState != socket.OPEN) {
                 console.log('Could not connect to webscoket server, will retry');
                 if (!rps.reconnectInterval) {
