@@ -1,0 +1,16 @@
+.web-socket-status:not(.connected):after {
+    content: 'Disconnected';
+    color: red;
+}
+.web-socket-status.connected:after {
+    content: 'Connected';
+    color: green;
+}
+select {
+    min-width: 200px;
+    max-width: 80%;
+}
+[name=users] .my-user {
+    color: red;
+}
+
