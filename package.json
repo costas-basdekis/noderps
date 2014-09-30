@@ -1,6 +1,6 @@
 {
     "name": "noderps",
-    "description": "Node.js Rock-Paper-Sciscors server",
+    "description": "Node.js Rock-Paper-Scissors server",
     "author": "Costas Basdekis <costas.basdekis@gmail.com>",
     "repository": {
         "type": "git",

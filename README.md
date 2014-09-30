@@ -1,1 +1,1 @@
-# NodeRPS: A node.js Rock-Paper-Sciscors server
+# NodeRPS: A node.js Rock-Paper-Scissors server

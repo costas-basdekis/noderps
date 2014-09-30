@@ -140,10 +140,10 @@ function sendUserList(socket) {
     });
 }
 
-CHOICES = ['rock', 'paper', 'sciscors'];
+CHOICES = ['rock', 'paper', 'scissors'];
 CHOICES_BEAT = {
-    'rock': 'sciscors',
-    'sciscors': 'paper',
+    'rock': 'scissors',
+    'scissors': 'paper',
     'paper': 'rock',
 };
 
